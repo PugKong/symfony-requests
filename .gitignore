@@ -1,0 +1,12 @@
+.aider*
+.idea
+
+vendor/
+tools/
+
+composer.lock
+
+.php-cs-fixer.cache
+.phpunit.cache
+
+echoserver/echoserver

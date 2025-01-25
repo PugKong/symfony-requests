@@ -1,0 +1,108 @@
+name: CI
+
+on: { push: { branches: ["*"] } }
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ["8.2", "8.3", "8.4"]
+        dependency-version: ["lowest", "highest"]
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with: { php-version: "${{ matrix.php-version }}", tools: "phive" }
+
+      - name: Cache tools installed with PHIVE
+        uses: actions/cache@v4
+        with: { path: "${{ runner.temp }}/.phive", key: "${{ hashFiles('.phive/phars.xml') }}" }
+
+      - name: Install PHP tools with PHIVE
+        uses: szepeviktor/phive-install@v1
+        with:
+          home: "${{ runner.temp }}/.phive"
+          binPath: "phive"
+          trustGpgKeys: "51C67305FFC2E5C0,E82B2FB314E9906E,4AA394086372C20A"
+
+      - name: Install composer dependencies
+        uses: ramsey/composer-install@v2
+        with: { dependency-versions: "${{ matrix.dependency-version }}" }
+
+      - name: Start echoserver
+        run: docker compose up --wait
+
+      - name: Run tests
+        run: tools/phpunit
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with: { php-version: "8.2", tools: "phive" }
+
+      - name: Cache tools installed with PHIVE
+        uses: actions/cache@v4
+        with: { path: "${{ runner.temp }}/.phive", key: "${{ hashFiles('.phive/phars.xml') }}" }
+
+      - name: Install PHP tools with PHIVE
+        uses: szepeviktor/phive-install@v1
+        with:
+          home: "${{ runner.temp }}/.phive"
+          binPath: "phive"
+          trustGpgKeys: "51C67305FFC2E5C0,E82B2FB314E9906E,4AA394086372C20A"
+
+      - name: Validate composer.json
+        run: composer validate
+
+      - name: Install composer dependencies
+        run: composer install --prefer-dist --optimize-autoloader
+
+      - name: Run phpstan
+        run: tools/phpstan --no-progress
+
+      - name: Run php-cs-fixer
+        run: tools/php-cs-fixer check --show-progress=none
+
+      - name: Run prettier
+        run: npx prettier --check .
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with: { php-version: "8.2", tools: "phive" }
+
+      - name: Cache tools installed with PHIVE
+        uses: actions/cache@v4
+        with: { path: "${{ runner.temp }}/.phive", key: "${{ hashFiles('.phive/phars.xml') }}" }
+
+      - name: Install PHP tools with PHIVE
+        uses: szepeviktor/phive-install@v1
+        with:
+          home: "${{ runner.temp }}/.phive"
+          binPath: "phive"
+          trustGpgKeys: "51C67305FFC2E5C0,E82B2FB314E9906E,4AA394086372C20A"
+
+      - name: Install composer dependencies
+        run: composer install --prefer-dist --optimize-autoloader
+
+      - name: Start echoserver
+        run: docker compose up --wait
+
+      - name: Run phpunit with coverage
+        run: tools/phpunit --coverage-clover coverage.xml
+
+      - name: Upload coverage
+        uses: coverallsapp/github-action@v2

@@ -1,0 +1,8 @@
+[tools]
+"npm:prettier" = "latest"
+
+[tasks.fmt]
+run = ["tools/php-cs-fixer fix --diff", "prettier --write ."]
+
+[tasks.lint]
+run = ["composer validate", "tools/phpstan --memory-limit=-1", "prettier --check .", "tools/php-cs-fixer check"]
