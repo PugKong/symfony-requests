@@ -129,6 +129,25 @@ final class RequestTest extends TestCase
                     ->object(EchoServerResponse::class),
             ],
 
+            'post raw request' => [
+                EchoServerResponse::json(
+                    method: 'POST',
+                    path: '/post',
+                    headers: ['Content-Type' => 'application/x-www-form-urlencoded'],
+                    body: ['name' => 'Jane Doe'],
+                ),
+                fn (Request $request) => $request
+                    ->post('/post')
+                    ->headers([
+                        'Content-Type' => 'application/x-www-form-urlencoded',
+                        'Accept' => 'application/json',
+                    ])
+                    ->rawBody(['name' => 'Jane Doe'])
+                    ->response()
+                    ->checkStatus(200)
+                    ->object(EchoServerResponse::class),
+            ],
+
             'put json request' => [
                 EchoServerResponse::json(
                     method: 'PUT',

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pugkong\Symfony\Requests;
 
+use Closure;
 use LogicException;
 use SensitiveParameter;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -191,7 +192,7 @@ final readonly class Request
     }
 
     /**
-     * Sets the request body.
+     * Sets the body content of the request after serializing it.
      *
      * @param mixed                $body    Body content
      * @param string|null          $format  Serialization format
@@ -201,6 +202,16 @@ final readonly class Request
     {
         $body = $this->serializer->serialize($body, $format ?? $this->requestFormat, $context);
 
+        return $this->with(['body' => $body]);
+    }
+
+    /**
+     * Sets the body content to the symfony/http-client as is.
+     *
+     * @param string|resource|Closure|iterable<array-key, mixed> $body Body content
+     */
+    public function rawBody(mixed $body): self
+    {
         return $this->with(['body' => $body]);
     }
 
