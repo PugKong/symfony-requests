@@ -14,7 +14,7 @@ final class StatusCodeException extends RuntimeException
      * @param int[] $expectedStatuses
      */
     public function __construct(
-        public array $expectedStatuses,
+        public readonly array $expectedStatuses,
         public readonly Response $response,
     ) {
         $inner = $this->response->inner;
