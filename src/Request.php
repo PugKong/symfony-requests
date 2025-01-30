@@ -76,7 +76,7 @@ final readonly class Request
      */
     public function get(string $path): self
     {
-        return $this->endpoint('GET', $path);
+        return $this->with(method: 'GET', path: $path);
     }
 
     /**
@@ -86,7 +86,7 @@ final readonly class Request
      */
     public function post(string $path): self
     {
-        return $this->endpoint('POST', $path);
+        return $this->with(method: 'POST', path: $path);
     }
 
     /**
@@ -96,7 +96,7 @@ final readonly class Request
      */
     public function put(string $path): self
     {
-        return $this->endpoint('PUT', $path);
+        return $this->with(method: 'PUT', path: $path);
     }
 
     /**
@@ -106,7 +106,7 @@ final readonly class Request
      */
     public function patch(string $path): self
     {
-        return $this->endpoint('PATCH', $path);
+        return $this->with(method: 'PATCH', path: $path);
     }
 
     /**
@@ -116,7 +116,7 @@ final readonly class Request
      */
     public function delete(string $path): self
     {
-        return $this->endpoint('DELETE', $path);
+        return $this->with(method: 'DELETE', path: $path);
     }
 
     /**
@@ -126,7 +126,7 @@ final readonly class Request
      */
     public function options(string $path): self
     {
-        return $this->endpoint('OPTIONS', $path);
+        return $this->with(method: 'OPTIONS', path: $path);
     }
 
     /**
@@ -257,11 +257,6 @@ final readonly class Request
             request: $this,
             inner: $this->http->request($this->method, $this->path, $this->options),
         );
-    }
-
-    private function endpoint(string $method, string $path): self
-    {
-        return $this->with(method: $method, path: $path);
     }
 
     /**
